@@ -1,18 +1,16 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>حجز ملعب - MLAAB CITY</title>
+  <title>Book a Field - MLAAB CITY</title>
+  <link rel="stylesheet" href="padel.css">
   <style>
     body {
       font-family: Arial, sans-serif;
       background-color: #f0f0f0;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      margin: 0;
+      margin: 0px;
+      padding-top: 0px; /* مساحة للهيدر والإعلان */
     }
     .form-container {
       background-color: white;
@@ -21,6 +19,8 @@
       box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
       width: 100%;
       max-width: 500px;
+      margin: auto;
+      margin-top: 250px;
     }
     .form-container h2 {
       text-align: center;
@@ -57,74 +57,93 @@
     button:hover {
       background-color: #27ae60;
     }
-    .back-button {
-      margin-top: 10px;
-      background-color: #3498db;
-    }
-    .back-button:hover {
-      background-color: #2980b9;
-    }
   </style>
 </head>
 <body>
+  <!-- الشريط العلوي والهيدر -->
+  <div class="announcement-bar" id="announcement">
+    <div class="announcement-content">
+      🎾Book your padel court in seconds, only here 🎾
+    </div>
+  </div>
+
+  <header class="site-header">
+    <div class="logo-container">
+      <a href="index.html"><img src="img/WhatsApp Image 2025-07-21 at 14.47.18_d49d1760.jpg" alt="Mal3bk" class="logo" /></a>
+    </div>
+    <nav class="navbar">
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="index3.html">Matches</a></li>
+        <li><a href="index4.html">Tournaments</a></li>
+        <li><a href="index2.html">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- فورم الحجز -->
   <div class="form-container">
-    <h2>احجز ملعبك الآن</h2>
+    <h2>Book Your Field Now</h2>
     <form id="bookingForm">
+      <!-- باقي الفورم زي ما هو -->
       <div class="form-group">
-        <label for="name">الاسم</label>
+        <label for="name">Name</label>
         <input type="text" id="name" required />
       </div>
 
       <div class="form-group">
-        <label for="email">البريد الإلكتروني</label>
+        <label for="email">Email</label>
         <input type="email" id="email" required />
       </div>
 
       <div class="form-group">
-        <label for="phone">رقم الهاتف</label>
+        <label for="phone">Phone Number</label>
         <input type="tel" id="phone" required />
       </div>
 
       <div class="form-group">
-        <label for="day">اليوم</label>
+        <label for="day">Day</label>
         <select id="day" required>
-          <option value="">اختر اليوم</option>
-          <option value="السبت">السبت</option>
-          <option value="الأحد">الأحد</option>
-          <option value="الإثنين">الإثنين</option>
-          <option value="الثلاثاء">الثلاثاء</option>
-          <option value="الأربعاء">الأربعاء</option>
-          <option value="الخميس">الخميس</option>
-          <option value="الجمعة">الجمعة</option>
+          <option value="">Select a day</option>
+          <option value="Saturday">Saturday</option>
+          <option value="Sunday">Sunday</option>
+          <option value="Monday">Monday</option>
+          <option value="Tuesday">Tuesday</option>
+          <option value="Wednesday">Wednesday</option>
+          <option value="Thursday">Thursday</option>
+          <option value="Friday">Friday</option>
         </select>
       </div>
 
       <div class="form-group">
-        <label>اختيار الوقت</label>
+        <label>Select Time</label>
         <div class="time-row">
           <select id="from" required>
-            <option value="">من</option>
-            ${Array.from({length: 12}, (_, i) => `<option value="${i+1}">${i+1}</option>`).join('')}
+            <option value="">From</option>
+            <!-- options -->
+            ${[...Array(12)].map((_, i) => `<option value="${i + 1}">${i + 1}</option>`).join("")}
           </select>
           <select id="to" required>
-            <option value="">إلى</option>
-            ${Array.from({length: 12}, (_, i) => `<option value="${i+2}">${i+2 > 12 ? i-11 : i+2}</option>`).join('')}
+            <option value="">To</option>
+            ${[...Array(12)].map((_, i) => `<option value="${i + 1}">${i + 1}</option>`).join("")}
           </select>
           <select id="am_pm" required>
-            <option value="AM">صباحًا</option>
-            <option value="PM">مساءً</option>
+            <option value="AM">AM</option>
+            <option value="PM">PM</option>
           </select>
         </div>
       </div>
 
-      <button type="submit">احجز الآن</button>
+      <button type="submit">Book Now</button>
+      <button type="button" onclick="window.location.href='index.html'" style="margin-top: 10px; background-color: #3498db;">Back to Main Menu</button>
     </form>
-    <button class="back-button" onclick="window.location.href='index.html'">رجوع للقائمة الرئيسية</button>
   </div>
 
+  <!-- سكربت Firebase + EmailJS زي ما هو -->
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
     import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+    import emailjs from "https://cdn.jsdelivr.net/npm/emailjs-com@3.2.0/dist/email.min.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyChXYUhXG3GliFPb5vp736Hhp7Msllxj68",
@@ -144,10 +163,6 @@
       return Array.from({ length }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
     }
 
-    function validateHours(from, to) {
-      return parseInt(to) - parseInt(from) === 1;
-    }
-
     document.getElementById("bookingForm").addEventListener("submit", async (e) => {
       e.preventDefault();
 
@@ -158,51 +173,25 @@
       const from = document.getElementById("from").value;
       const to = document.getElementById("to").value;
       const am_pm = document.getElementById("am_pm").value;
-
-      if (!validateHours(from, to)) {
-        alert("مدة الحجز يجب أن تكون ساعة واحدة فقط.");
-        return;
-      }
-
       const code = generateCode();
 
       try {
         await addDoc(collection(db, "bookings"), {
-          name,
-          email,
-          phone,
-          day,
-          from,
-          to,
-          am_pm,
-          code,
+          name, email, phone, day, from, to, am_pm, code,
           expired: false,
           createdAt: serverTimestamp()
         });
 
-        const emailData = {
-          service_id: "service_d75wk4a",
-          template_id: "template_fo5wwpn",
-          user_id: "TX8-siv12PBErzriy",
-          template_params: {
-            to_name: name,
-            to_email: email,
-            code: code
-          }
-        };
+        await emailjs.send("service_d75wk4a", "template_fo5wwpn", {
+          to_name: name,
+          to_email: email,
+          message: code
+        }, "TX8-siv12PBErzriy");
 
-        await fetch("https://api.emailjs.com/api/v1.0/email/send", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify(emailData)
-        });
-
-        alert(`تم الحجز بنجاح!\nالكود الخاص بك هو: ${code} وقد تم إرساله إلى بريدك الإلكتروني.`);
+        alert(`Booking successful! Your booking code is: ${code}`);
       } catch (err) {
-        console.error("خطأ في الحجز:", err);
-        alert("حدث خطأ أثناء الحجز. حاول مرة أخرى.");
+        console.error("Error during booking:", err);
+        alert("Something went wrong. Please try again.");
       }
     });
   </script>
