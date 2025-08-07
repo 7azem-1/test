@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>حجز ملعب - MLAAB CITY</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f0f0f0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+    .form-container {
+      background-color: white;
+      padding: 30px;
+      border-radius: 16px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+      width: 100%;
+      max-width: 500px;
+    }
+    .form-container h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    .form-group {
+      margin-bottom: 15px;
+    }
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: bold;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 16px;
+    }
+    .time-row {
+      display: flex;
+      gap: 10px;
+    }
+    .time-row select {
+      flex: 1;
+    }
+    button {
+      background-color: #2ecc71;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #27ae60;
+    }
+  </style>
+</head>
+<body>
+  <div class="form-container">
+    <h2>احجز ملعبك الآن</h2>
+    <form id="bookingForm">
+      <div class="form-group">
+        <label for="name">الاسم</label>
+        <input type="text" id="name" required />
+      </div>
+
+      <div class="form-group">
+        <label for="email">البريد الإلكتروني</label>
+        <input type="email" id="email" required />
+      </div>
+
+      <div class="form-group">
+        <label for="phone">رقم الهاتف</label>
+        <input type="tel" id="phone" required />
+      </div>
+
+      <div class="form-group">
+        <label for="day">اليوم</label>
+        <select id="day" required>
+          <option value="">اختر اليوم</option>
+          <option value="السبت">السبت</option>
+          <option value="الأحد">الأحد</option>
+          <option value="الإثنين">الإثنين</option>
+          <option value="الثلاثاء">الثلاثاء</option>
+          <option value="الأربعاء">الأربعاء</option>
+          <option value="الخميس">الخميس</option>
+          <option value="الجمعة">الجمعة</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label>اختيار الوقت</label>
+        <div class="time-row">
+          <select id="from" required>
+            <option value="">من</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12</option>
+          </select>
+          <select id="to" required>
+            <option value="">إلى</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12</option>
+            <option value="13">1</option>
+          </select>
+          <select id="am_pm" required>
+            <option value="AM">صباحًا</option>
+            <option value="PM">مساءً</option>
+          </select>
+        </div>
+      </div>
+
+      <button type="submit">احجز الآن</button>
+    </form>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyChXYUhXG3GliFPb5vp736Hhp7Msllxj68",
+      authDomain: "mlaab-city.firebaseapp.com",
+      projectId: "mlaab-city",
+      storageBucket: "mlaab-city.firebasestorage.app",
+      messagingSenderId: "910383180422",
+      appId: "1:910383180422:web:3feb8fad61d2cab5917f07",
+      measurementId: "G-YQ0016JLVH"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+
+    function generateCode(length = 6) {
+      const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+      return Array.from({ length }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+    }
+
+    function validateHours(from, to) {
+      return parseInt(to) - parseInt(from) === 1;
+    }
+
+    document.getElementById("bookingForm").addEventListener("submit", async (e) => {
+      e.preventDefault();
+
+      const name = document.getElementById("name").value;
+      const email = document.getElementById("email").value;
+      const phone = document.getElementById("phone").value;
+      const day = document.getElementById("day").value;
+      const from = document.getElementById("from").value;
+      const to = document.getElementById("to").value;
+      const am_pm = document.getElementById("am_pm").value;
+
+      if (!validateHours(from, to)) {
+        alert("مدة الحجز يجب أن تكون ساعة واحدة فقط.");
+        return;
+      }
+
+      const code = generateCode();
+
+      try {
+        await addDoc(collection(db, "bookings"), {
+          name,
+          email,
+          phone,
+          day,
+          from,
+          to,
+          am_pm,
+          code,
+          expired: false,
+          createdAt: serverTimestamp()
+        });
+
+        alert(`تم الحجز بنجاح!\nالكود الخاص بك لدخول الحجز هو: ${code}`);
+
+        // هنا تقدر تضيف كود EmailJS لو حبيت ترسل الكود بالإيميل
+      } catch (err) {
+        console.error("خطأ في الحجز:", err);
+        alert("حدث خطأ أثناء الحجز. حاول مرة أخرى.");
+      }
+    });
+  </script>
+</body>
+</html>
