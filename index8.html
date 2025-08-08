@@ -18,15 +18,12 @@
     .form-container {
       background-color: white;
       padding: 30px;
-      border-radius: 16px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-      width: 100%;
-      max-width: 100%;
-      margin: auto;
-      margin-top: 250px;
-    }
-    .form-container h2 {
-      text-align: center;
+      border-radius: 8px;
+      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+      width: 500px;
+      max-width: 500px;
+      margin: 50px auto;
+      text-align: left;
       margin-bottom: 20px;
     }
     .form-group {
@@ -89,17 +86,17 @@
     <form id="bookingForm">
       <div class="form-group">
         <label for="name">Name</label>
-        <input type="text" id="name" required />
+        <input type="name" id="name" placeholder="name" required />
       </div>
 
       <div class="form-group">
         <label for="email">Email</label>
-        <input type="email" id="email" required />
+        <input type="email" id="email" placeholder="you@example.com" required />
       </div>
 
       <div class="form-group">
         <label for="phone">Phone Number</label>
-        <input type="tel" id="phone" required />
+        <input type="phone" id="phone" placeholder="your number" required />
       </div>
 
       <div class="form-group">
@@ -121,11 +118,33 @@
         <div class="time-row">
           <select id="from" required>
             <option value="">From</option>
-            ${[...Array(12)].map((_, i) => `<option value="${i + 1}">${i + 1}</option>`).join("")}
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12</option>
           </select>
           <select id="to" required>
             <option value="">To</option>
-            ${[...Array(12)].map((_, i) => `<option value="${i + 1}">${i + 1}</option>`).join("")}
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12</option>
           </select>
           <select id="am_pm" required>
             <option value="AM">AM</option>
