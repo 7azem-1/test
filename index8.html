@@ -160,6 +160,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-analytics.js";
     import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
     import emailjs from "https://cdn.jsdelivr.net/npm/emailjs-com@3.2.0/dist/email.min.js";
 
@@ -174,7 +175,10 @@
     };
 
     const app = initializeApp(firebaseConfig);
+    const analytics = getAnalytics(app);
     const db = getFirestore(app);
+
+    const SHEETS_WEBHOOK = "https://script.google.com/macros/s/AKfycbxEIOBznnXxg2Ol5nUQiM4ny2xhJnpMzadnT9l5I1QoEnH_5scAOS5rxS_A-OviKtfS6Q/exec";
 
     function generateCode(length = 6) {
       const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
@@ -193,11 +197,23 @@
       const am_pm = document.getElementById("am_pm").value;
       const code = generateCode();
 
+      if (!name || !email || !phone || !day || !from || !to || !am_pm) {
+        alert("Please fill in all fields.");
+        return;
+      }
       try {
         await addDoc(collection(db, "bookings"), {
           name, email, phone, day, from, to, am_pm, code,
           expired: false,
           createdAt: serverTimestamp()
+        });
+
+        await fetch(SHEETS_WEBHOOK, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            name, email, phone, day, from, to, am_pm, code
+          })
         });
 
         await emailjs.send("service_d75wk4a", "template_fo5wwpn", {
