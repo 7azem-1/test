@@ -10,7 +10,7 @@
 body {
   font-family: 'Arial', sans-serif;
   background-color: #f0f0f0;
-
+width: 100;
 
 }
 
@@ -347,7 +347,7 @@ table {
     border: 1px;
     border: #0077b6;
     table-layout: fixed;
-    word-wrap: break-word;
+    word-wrap: 100;
     
 }
 tr td a{

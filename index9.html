@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" dir="ltr">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>تأكيد الكود - MLAAB CITY</title>
+  <meta name="viewport" content="width=device-width, initial-scale=0.7">
+  <title>Verify Code - MLAAB CITY</title>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -59,11 +59,11 @@
 </head>
 <body>
   <div class="container">
-    <h2>تأكيد كود الحجز</h2>
-    <input type="text" id="codeInput" placeholder="أدخل كود الحجز" required />
-    <button onclick="verifyCode()">تأكيد الكود</button>
+    <h2>Confirm Booking Code</h2>
+    <input type="text" id="codeInput" placeholder="Enter your booking code" required />
+    <button onclick="verifyCode()">Verify Code</button>
     <div class="message" id="message"></div>
-    <button class="back-button" onclick="window.location.href='index.html'">الرجوع للرئيسية</button>
+    <button class="back-button" onclick="window.location.href='index.html'">Back to Home</button>
   </div>
 
   <script type="module">
@@ -86,13 +86,13 @@
     window.verifyCode = async function () {
       const code = document.getElementById("codeInput").value.trim().toUpperCase();
       const messageEl = document.getElementById("message");
-      messageEl.textContent = "جارٍ التحقق...";
+      messageEl.textContent = "Verifying...";
       try {
         const q = query(collection(db, "bookings"), where("code", "==", code));
         const querySnapshot = await getDocs(q);
 
         if (querySnapshot.empty) {
-          messageEl.textContent = "الكود غير موجود.";
+          messageEl.textContent = "Code not found.";
           return;
         }
 
@@ -106,10 +106,10 @@
           expired: true
         });
 
-        messageEl.textContent = "تم تأكيد الكود وتحديث حالته بنجاح ✅";
+        messageEl.textContent = "Code verified and status updated successfully ✅";
       } catch (error) {
         console.error("Error verifying code:", error);
-        messageEl.textContent = "حدث خطأ أثناء التأكيد. حاول مرة أخرى.";
+        messageEl.textContent = "An error occurred. Please try again.";
       }
     };
   </script>
