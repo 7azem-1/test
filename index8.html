@@ -214,75 +214,53 @@
     // Init EmailJS
     emailjs.init("TX8-siv12PBErzriy");
 
-    document
-      .getElementById("bookingForm")
-      .addEventListener("submit", async (e) => {
-        e.preventDefault();
+    document.getElementById("bookingForm").addEventListener("submit", async (e) => {
+  e.preventDefault();
 
-        const name = document.getElementById("name").value.trim();
-        const email = document.getElementById("email").value.trim();
-        const phone = document.getElementById("phone").value.trim();
-        const date = document.getElementById("date").value;
-        const from = document.getElementById("from").value;
-        const to = document.getElementById("to").value;
-        const am_pm = document.getElementById("am_pm").value;
-        const code = generateCode();
+  const name = document.getElementById("name").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+  const date = document.getElementById("date").value;
+  const from = document.getElementById("from").value;
+  const to = document.getElementById("to").value;
+  const am_pm = document.getElementById("am_pm").value;
+  const code = generateCode();
 
-        if (!name || !email || !phone || !date || !from || !to || !am_pm) {
-          alert("Please fill in all fields.");
-          return;
-        }
+  if (!name || !email || !phone || !date || !from || !to || !am_pm) {
+    alert("Please fill in all fields.");
+    return;
+  }
 
-        if (parseInt(to) <= parseInt(from)) {
-          alert("End time must be greater than start time.");
-          return;
-        }
+  if (parseInt(to) <= parseInt(from)) {
+    alert("End time must be greater than start time.");
+    return;
+  }
 
-        try {
-          console.log("Sending booking to Firestore...");
-          await addDoc(collection(db, "bookings"), {
-            name,
-            email,
-            phone,
-            date,
-            from,
-            to,
-            am_pm,
-            code,
-            expired: false,
-            createdAt: serverTimestamp(),
-          });
-          console.log("Booking saved in Firestore.");
+  try {
+    console.log("Data to send:", { name, email, phone, date, from, to, am_pm, code });
 
-          console.log("Sending data to Google Sheets webhook...");
-          await fetch(SHEETS_WEBHOOK, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ name, email, phone, date, from, to, am_pm, code }),
-          });
-          console.log("Data sent to Google Sheets.");
+    await addDoc(collection(db, "bookings"), {
+      name,
+      email,
+      phone,
+      date,
+      from,
+      to,
+      am_pm,
+      code,
+      expired: false,
+      createdAt: serverTimestamp(),
+    });
 
-          console.log("Sending confirmation email...");
-          await emailjs.send(
-            "service_d75wk4a",
-            "template_fo5wwpn",
-            {
-              to_name: name,
-              to_email: email,
-              message: `Your booking code is: ${code}`,
-            }
-          );
-          console.log("Email sent.");
+    console.log("Booking saved in Firestore.");
 
-          alert(`Booking successful! Your booking code is: ${code}`);
-
-          // Reset form
-          e.target.reset();
-        } catch (err) {
-          console.error("Error during booking:", err);
-          alert("Something went wrong. Please try again.");
-        }
-      });
+    alert(`Booking successful! Your booking code is: ${code}`);
+    e.target.reset();
+  } catch (err) {
+    console.error("Error during booking:", err);
+    alert("Something went wrong. Please try again.");
+  }
+});
   </script>
 </body>
 </html>
