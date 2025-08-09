@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="en" dir="ltr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=0.7">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=0.7" />
   <title>Book a Field - MLAAB CITY</title>
-  <link rel="stylesheet" href="padel.css">
+  <link rel="stylesheet" href="padel.css" />
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -21,9 +21,8 @@
       box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
       width: 500px;
       max-width: 500px;
-      margin: 50px auto;
+      margin: 50px auto 20px;
       text-align: left;
-      margin-bottom: 20px;
     }
     .form-group {
       margin-bottom: 15px;
@@ -33,12 +32,15 @@
       margin-bottom: 5px;
       font-weight: bold;
     }
-    input, select, button {
+    input,
+    select,
+    button {
       width: 100%;
       padding: 10px;
       border: 1px solid #ccc;
       border-radius: 8px;
       font-size: 16px;
+      box-sizing: border-box;
     }
     .time-row {
       display: flex;
@@ -57,25 +59,31 @@
       background-color: #27ae60;
     }
     .date-input {
-      width: 100%;
       padding: 10px 14px;
       border-radius: 12px;
-      border: 2px solid #000;    
+      border: 2px solid #000;
       background: #fff;
       font-size: 15px;
       box-sizing: border-box;
       appearance: none;
     }
-    @media (max-width:520px){
-      .date-input { padding: 9px 12px; font-size: 14px; }
+    @media (max-width: 520px) {
+      .date-input {
+        padding: 9px 12px;
+        font-size: 14px;
+      }
     }
   </style>
 </head>
 <body>
-
   <header class="site-header">
     <div class="logo-container">
-      <a href="index.html"><img src="img/WhatsApp Image 2025-07-21 at 14.47.18_d49d1760.jpg" alt="Mal3bk" class="logo" /></a>
+      <a href="index.html"
+        ><img
+          src="img/WhatsApp Image 2025-07-21 at 14.47.18_d49d1760.jpg"
+          alt="Mal3bk"
+          class="logo"
+      /></a>
     </div>
     <nav class="navbar">
       <ul>
@@ -104,7 +112,14 @@
       </div>
       <div class="form-group">
         <label for="date">Select a date</label>
-        <input type="date" id="date" name="date" required class="date-input" />
+        <input
+          type="date"
+          id="date"
+          name="date"
+          required
+          class="date-input"
+          min=""
+        />
       </div>
       <div class="form-group">
         <label>Select Time</label>
@@ -134,17 +149,23 @@
         </div>
       </div>
       <button type="submit">Book Now</button>
-      <button type="button" onclick="window.location.href='index.html'" style="margin-top: 10px; background-color: #3498db;">Back to Main Menu</button>
+      <button
+        type="button"
+        onclick="window.location.href='index.html'"
+        style="margin-top: 10px; background-color: #3498db"
+      >
+        Back to Main Menu
+      </button>
     </form>
   </div>
 
   <script>
-    (function(){
-      const input = document.getElementById('date');
+    (function () {
+      const input = document.getElementById("date");
       const today = new Date();
       const yyyy = today.getFullYear();
-      const mm = String(today.getMonth()+1).padStart(2,'0');
-      const dd = String(today.getDate()).padStart(2,'0');
+      const mm = String(today.getMonth() + 1).padStart(2, "0");
+      const dd = String(today.getDate()).padStart(2, "0");
       input.min = `${yyyy}-${mm}-${dd}`;
     })();
   </script>
@@ -152,71 +173,116 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-analytics.js";
-    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+    import {
+      getFirestore,
+      collection,
+      addDoc,
+      serverTimestamp,
+    } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+
+    // emailjs imports: لازم تستورد بطريقة مختلفة لأن هذا ملف module
     import emailjs from "https://cdn.jsdelivr.net/npm/emailjs-com@3.2.0/dist/email.min.js";
 
+    // Initialize Firebase config (تأكد من صحة بياناتك)
     const firebaseConfig = {
       apiKey: "AIzaSyChXYUhXG3GliFPb5vp736Hhp7Msllxj68",
       authDomain: "mlaab-city.firebaseapp.com",
       projectId: "mlaab-city",
-      storageBucket: "mlaab-city.firebasestorage.app",
+      storageBucket: "mlaab-city.appspot.com", // صححت هنا من firebasestorage.app لـ appspot.com
       messagingSenderId: "910383180422",
       appId: "1:910383180422:web:3feb8fad61d2cab5917f07",
-      measurementId: "G-YQ0016JLVH"
+      measurementId: "G-YQ0016JLVH",
     };
 
+    // تهيئة التطبيق والـ Firestore
     const app = initializeApp(firebaseConfig);
     getAnalytics(app);
     const db = getFirestore(app);
 
-    const SHEETS_WEBHOOK = "https://script.google.com/macros/s/AKfycbxEIOBznnXxg2Ol5nUQiM4ny2xhJnpMzadnT9l5I1QoEnH_5scAOS5rxS_A-OviKtfS6Q/exec";
+    // Google Sheets webhook URL
+    const SHEETS_WEBHOOK =
+      "https://script.google.com/macros/s/AKfycbxEIOBznnXxg2Ol5nUQiM4ny2xhJnpMzadnT9l5I1QoEnH_5scAOS5rxS_A-OviKtfS6Q/exec";
 
+    // Generate random booking code
     function generateCode(length = 6) {
       const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-      return Array.from({ length }, () => chars[Math.floor(Math.random() * chars.length)]).join('');
+      return Array.from({ length }, () =>
+        chars[Math.floor(Math.random() * chars.length)]
+      ).join("");
     }
 
-    document.getElementById("bookingForm").addEventListener("submit", async (e) => {
-      e.preventDefault();
+    // Init EmailJS
+    emailjs.init("TX8-siv12PBErzriy");
 
-      const name = document.getElementById("name").value;
-      const email = document.getElementById("email").value;
-      const phone = document.getElementById("phone").value;
-      const date = document.getElementById("date").value;
-      const from = document.getElementById("from").value;
-      const to = document.getElementById("to").value;
-      const am_pm = document.getElementById("am_pm").value;
-      const code = generateCode();
+    document
+      .getElementById("bookingForm")
+      .addEventListener("submit", async (e) => {
+        e.preventDefault();
 
-      if (!name || !email || !phone || !date || !from || !to || !am_pm) {
-        alert("Please fill in all fields.");
-        return;
-      }
-      try {
-        await addDoc(collection(db, "bookings"), {
-          name, email, phone, date, from, to, am_pm, code,
-          expired: false,
-          createdAt: serverTimestamp()
-        });
+        const name = document.getElementById("name").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const phone = document.getElementById("phone").value.trim();
+        const date = document.getElementById("date").value;
+        const from = document.getElementById("from").value;
+        const to = document.getElementById("to").value;
+        const am_pm = document.getElementById("am_pm").value;
+        const code = generateCode();
 
-        await fetch(SHEETS_WEBHOOK, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, email, phone, date, from, to, am_pm, code })
-        });
+        if (!name || !email || !phone || !date || !from || !to || !am_pm) {
+          alert("Please fill in all fields.");
+          return;
+        }
 
-        await emailjs.send("service_d75wk4a", "template_fo5wwpn", {
-          to_name: name,
-          to_email: email,
-          message: code
-        }, "TX8-siv12PBErzriy");
+        if (parseInt(to) <= parseInt(from)) {
+          alert("End time must be greater than start time.");
+          return;
+        }
 
-        alert(`Booking successful! Your booking code is: ${code}`);
-      } catch (err) {
-        console.error("Error during booking:", err);
-        alert("Something went wrong. Please try again.");
-      }
-    });
+        try {
+          console.log("Sending booking to Firestore...");
+          await addDoc(collection(db, "bookings"), {
+            name,
+            email,
+            phone,
+            date,
+            from,
+            to,
+            am_pm,
+            code,
+            expired: false,
+            createdAt: serverTimestamp(),
+          });
+          console.log("Booking saved in Firestore.");
+
+          console.log("Sending data to Google Sheets webhook...");
+          await fetch(SHEETS_WEBHOOK, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name, email, phone, date, from, to, am_pm, code }),
+          });
+          console.log("Data sent to Google Sheets.");
+
+          console.log("Sending confirmation email...");
+          await emailjs.send(
+            "service_d75wk4a",
+            "template_fo5wwpn",
+            {
+              to_name: name,
+              to_email: email,
+              message: `Your booking code is: ${code}`,
+            }
+          );
+          console.log("Email sent.");
+
+          alert(`Booking successful! Your booking code is: ${code}`);
+
+          // Reset form
+          e.target.reset();
+        } catch (err) {
+          console.error("Error during booking:", err);
+          alert("Something went wrong. Please try again.");
+        }
+      });
   </script>
 </body>
 </html>
