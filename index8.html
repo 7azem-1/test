@@ -375,7 +375,23 @@
           code,
           expired: false,
           createdAt: serverTimestamp(),
-        });
+          });
+
+      fetch("https://script.google.com/macros/s/AKfycbzj3m4W2pdWGKpXWDOJhp5qQ3-n2lwepQpy2rD2C0zmkyBloTqKDv81XFL8gkjhGFU3/exec", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        name,
+        email,
+        phone,
+        date,
+        from,
+        to,
+        am_pm,
+        code,
+        expired: false
+        })
+      });
 
         showModal(code);
 
