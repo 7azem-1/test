@@ -276,11 +276,13 @@
     })();
   </script>
 
+  <!-- EmailJS تحميل -->
+  <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3.2.0/dist/email.min.js"></script>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
     import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-analytics.js";
     import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
-    import emailjs from "https://cdn.jsdelivr.net/npm/emailjs-com@3.2.0/dist/email.min.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyChXYUhXG3GliFPb5vp736Hhp7Msllxj68",
@@ -296,14 +298,14 @@
     getAnalytics(app);
     const db = getFirestore(app);
 
+    emailjs.init("TX8-siv12PBErzriy");
+
     function generateCode(length = 6) {
       const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
       return Array.from({ length }, () =>
         chars[Math.floor(Math.random() * chars.length)]
       ).join("");
     }
-
-    emailjs.init("TX8-siv12PBErzriy");
 
     const bookingForm = document.getElementById("bookingForm");
     const modalBackdrop = document.getElementById("modalBackdrop");
@@ -388,7 +390,7 @@
             booking_code: code
           });
         } catch (emailErr) {
-          console.warn("EmailJS send failed (non-blocking):", emailErr);
+          console.warn("EmailJS send failed:", emailErr);
         }
 
       } catch (err) {
