@@ -5,6 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Book a Field - MLAAB CITY</title>
   <link rel="stylesheet" href="padel.css" />
+</head>
+<body>
+    <div class="announcement-bar" id="announcement">
+    <div class="announcement-content">
+       🎾Book your padel court in seconds, only here🎾 
+    </div>
+      </div>
   <style>
     body {
       font-family: Arial, sans-serif;
@@ -191,7 +198,6 @@
         <li><a href="index.html">Home</a></li>
         <li><a href="index3.html">Matches</a></li>
         <li><a href="index4.html">Tournaments</a></li>
-        <li><a href="index2.html">Contact</a></li>
       </ul>
     </nav>
   </header>
@@ -212,8 +218,8 @@
         <input type="text" id="phone" placeholder="your number" required />
       </div>
       <div class="form-group">
-        <label for="date">Select a date</label>
-        <input type="date" id="date" name="date" required class="date-input" min="" />
+        <label for="date">Booking date</label>
+        <input type="date" id="date" placeholder="Booking date" required />
       </div>
       <div class="form-group">
         <label>Select Time</label>
@@ -249,21 +255,37 @@
     </form>
   </div>
 
-  <div id="modalBackdrop" class="modal-backdrop" role="dialog" aria-hidden="true">
-    <div id="successModal" class="modal" role="document" aria-modal="true">
-      <div class="success-circle" aria-hidden="true">
-        <svg class="checkmark" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="26" cy="26" r="20"></circle>
-          <path class="tick" fill="none" d="M14 27 l8 8 l16 -16"></path>
-        </svg>
-      </div>
-      <h3>Successful booking!</h3>
-      <p>Your booking was created successfully.</p>
-      <div id="bookingCode" class="booking-code">CODE</div>
-      <br />
-      <button id="okBtn" class="ok-btn" type="button">OK</button>
+<div id="modalBackdrop" class="modal-backdrop" role="dialog" aria-hidden="true">
+  <div id="successModal" class="modal" role="document" aria-modal="true">
+    <div class="success-circle" aria-hidden="true">
+      <svg class="checkmark" viewBox="0 0 52 52" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="26" cy="26" r="20"></circle>
+        <path class="tick" fill="none" d="M14 27 l8 8 l16 -16"></path>
+      </svg>
     </div>
+    <h3>Successful booking!</h3>
+    <p>Your booking was created successfully.</p>
+    <p>⚠ You must take a screenshot to enter the reservation ⚠</p>
+    <div id="bookingCode" class="booking-code">CODE</div>
+    <br />
+    <button id="okBtn" class="ok-btn" type="button">OK</button>
+    <button id="screenshotBtn" class="ok-btn" type="button">📸 Screenshot</button>
   </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script>
+  document.getElementById("screenshotBtn").addEventListener("click", () => {
+    const modal = document.getElementById("successModal");
+    html2canvas(modal).then(canvas => {
+      const link = document.createElement("a");
+      link.href = canvas.toDataURL("image/png");
+      link.download = "booking_screenshot.png";
+      link.click();
+    });
+  });
+</script>
+
 
   <script>
     (function () {
@@ -276,7 +298,6 @@
     })();
   </script>
 
-  <!-- EmailJS تحميل -->
   <script src="https://cdn.jsdelivr.net/npm/emailjs-com@3.2.0/dist/email.min.js"></script>
 
   <script type="module">
@@ -375,23 +396,7 @@
           code,
           expired: false,
           createdAt: serverTimestamp(),
-          });
-
-      fetch("https://script.google.com/macros/s/AKfycbzj3m4W2pdWGKpXWDOJhp5qQ3-n2lwepQpy2rD2C0zmkyBloTqKDv81XFL8gkjhGFU3/exec", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        name,
-        email,
-        phone,
-        date,
-        from,
-        to,
-        am_pm,
-        code,
-        expired: false
-        })
-      });
+        });
 
         showModal(code);
 
