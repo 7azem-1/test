@@ -428,9 +428,46 @@
     if (e.target === conflictBackdrop) hideConflictModal();
   });
 
+  async function disableBookedTimes() {
+    const date = document.getElementById("date").value;
+    const am_pm = document.getElementById("am_pm").value;
+    if (!date || !am_pm) return;
+    const bookingsRef = collection(db, "bookings");
+    const q = query(
+      bookingsRef,
+      where("date", "==", date),
+      where("am_pm", "==", am_pm),
+      where("expired", "==", false)
+    );
+    const querySnapshot = await getDocs(q);
+    const fromSelect = document.getElementById("from");
+    const toSelect = document.getElementById("to");
+    [...fromSelect.options, ...toSelect.options].forEach(opt => {
+      opt.disabled = false;
+      opt.style.backgroundColor = "";
+      opt.style.color = "";
+    });
+    querySnapshot.forEach(doc => {
+      const data = doc.data();
+      const start = parseInt(data.from);
+      const end = parseInt(data.to);
+      for (let i = start; i < end; i++) {
+        [...fromSelect.options, ...toSelect.options].forEach(opt => {
+          if (parseInt(opt.value) === i) {
+            opt.disabled = true;
+            opt.style.backgroundColor = "#ffdddd";
+            opt.style.color = "#a00";
+          }
+        });
+      }
+    });
+  }
+
+  document.getElementById("date").addEventListener("change", disableBookedTimes);
+  document.getElementById("am_pm").addEventListener("change", disableBookedTimes);
+
   bookingForm.addEventListener("submit", async (e) => {
     e.preventDefault();
-
     const name = document.getElementById("name").value.trim();
     const email = document.getElementById("email").value.trim();
     const phone = document.getElementById("phone").value.trim();
@@ -439,17 +476,14 @@
     const to = document.getElementById("to").value;
     const am_pm = document.getElementById("am_pm").value;
     const code = generateCode();
-
     if (!name || !email || !phone || !date || !from || !to || !am_pm) {
       alert("Please fill in all fields.");
       return;
     }
-
     if (parseInt(to) <= parseInt(from)) {
       alert("End time must be greater than start time.");
       return;
     }
-
     try {
       const bookingsRef = collection(db, "bookings");
       const q = query(
@@ -458,9 +492,7 @@
         where("am_pm", "==", am_pm),
         where("expired", "==", false)
       );
-
       const querySnapshot = await getDocs(q);
-
       let conflict = false;
       querySnapshot.forEach(doc => {
         const data = doc.data();
@@ -471,12 +503,10 @@
           conflict = true;
         }
       });
-
       if (conflict) {
         showConflictModal();
         return;
       }
-
       await addDoc(bookingsRef, {
         name,
         email,
@@ -489,9 +519,7 @@
         expired: false,
         createdAt: serverTimestamp(),
       });
-
       showModal(code);
-
       try {
         emailjs.send("service_d75wk4a", "template_fo5wwpn", {
           to_name: name,
@@ -505,7 +533,6 @@
       } catch (emailErr) {
         console.warn("EmailJS send failed:", emailErr);
       }
-
     } catch (err) {
       console.error("Error during booking:", err);
       alert("Something went wrong. Please try again.");
