@@ -197,7 +197,7 @@
       <ul>
         <li><a href="index.html">Home</a></li>
         <li><a href="index3.html">Matches</a></li>
-        <li><a href="index4.html">Tournaments</a></li>
+        <li><a href="">Tournaments (not available)</a></li>
       </ul>
     </nav>
   </header>
@@ -404,7 +404,7 @@
     });
   }
 
-  function hideConflictModal() {
+    function hideConflictModal() {
     conflictModal.classList.remove("show");
     conflictBackdrop.setAttribute("aria-hidden", "true");
     setTimeout(() => {
@@ -432,7 +432,7 @@
   const selects = [document.getElementById("from"), document.getElementById("to")];
   for (const s of selects) {
     [...s.options].forEach(opt => {
-      if (!opt.value) return; // سيب الـ placeholder
+      if (!opt.value) return; 
       opt.disabled = false;
       opt.style.color = "";
       opt.style.textDecoration = "";
@@ -440,7 +440,7 @@
   }
 }
 
-async function markBookedTimes() {
+  async function markBookedTimes() {
   const date = document.getElementById("date").value;
   const am_pm = document.getElementById("am_pm").value;
 
@@ -481,9 +481,8 @@ async function markBookedTimes() {
   });
 }
 
-// شغل الفانكشن لما يتغير التاريخ أو AM/PM
-document.getElementById("date").addEventListener("change", markBookedTimes);
-document.getElementById("am_pm").addEventListener("change", markBookedTimes);
+  document.getElementById("date").addEventListener("change", markBookedTimes);
+  document.getElementById("am_pm").addEventListener("change", markBookedTimes);
 
   bookingForm.addEventListener("submit", async (e) => {
     e.preventDefault();
