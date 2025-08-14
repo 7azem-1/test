@@ -428,17 +428,23 @@
     if (e.target === conflictBackdrop) hideConflictModal();
   });
 
-async function markBookedTimes(date, am_pm) {
-  const fromSelect = document.getElementById("from");
-  const toSelect = document.getElementById("to");
+  function resetTimeOptions() {
+  const selects = [document.getElementById("from"), document.getElementById("to")];
+  for (const s of selects) {
+    [...s.options].forEach(opt => {
+      if (!opt.value) return; // سيب الـ placeholder
+      opt.disabled = false;
+      opt.style.color = "";
+      opt.style.textDecoration = "";
+    });
+  }
+}
 
-  // رجع كل الأوبشنز لحالتهم الطبيعية
-  [...fromSelect.options, ...toSelect.options].forEach(opt => {
-    opt.disabled = false;
-    opt.style.color = "";
-    opt.style.textDecoration = "";
-  });
+async function markBookedTimes() {
+  const date = document.getElementById("date").value;
+  const am_pm = document.getElementById("am_pm").value;
 
+  resetTimeOptions();
   if (!date || !am_pm) return;
 
   const bookingsRef = collection(db, "bookings");
@@ -448,36 +454,36 @@ async function markBookedTimes(date, am_pm) {
     where("am_pm", "==", am_pm),
     where("expired", "==", false)
   );
+  const snap = await getDocs(q);
 
-  const querySnapshot = await getDocs(q);
+  const bookedHours = new Set();
 
-  querySnapshot.forEach(doc => {
-    const data = doc.data();
-    for (let hour = parseInt(data.from); hour < parseInt(data.to); hour++) {
-      [...fromSelect.options, ...toSelect.options].forEach(opt => {
-        if (parseInt(opt.value) === hour) {
-          opt.disabled = true;
-          opt.style.color = "red";
-          opt.style.textDecoration = "line-through";
-        }
-      });
+  snap.forEach(doc => {
+    const d = doc.data();
+    const start = parseInt(d.from, 10);
+    const end = parseInt(d.to, 10);
+    for (let h = start; h < end; h++) {
+      bookedHours.add(h);
     }
+  });
+
+  const selects = [document.getElementById("from"), document.getElementById("to")];
+  selects.forEach(select => {
+    [...select.options].forEach(opt => {
+      if (!opt.value) return;
+      const hour = parseInt(opt.value, 10);
+      if (bookedHours.has(hour)) {
+        opt.disabled = true;
+        opt.style.color = "red";
+        opt.style.textDecoration = "line-through";
+      }
+    });
   });
 }
 
-// استدعاء لما يتغير التاريخ أو AM/PM
-document.getElementById("date").addEventListener("change", () => {
-  markBookedTimes(
-    document.getElementById("date").value,
-    document.getElementById("am_pm").value
-  );
-});
-document.getElementById("am_pm").addEventListener("change", () => {
-  markBookedTimes(
-    document.getElementById("date").value,
-    document.getElementById("am_pm").value
-  );
-});
+// شغل الفانكشن لما يتغير التاريخ أو AM/PM
+document.getElementById("date").addEventListener("change", markBookedTimes);
+document.getElementById("am_pm").addEventListener("change", markBookedTimes);
 
   bookingForm.addEventListener("submit", async (e) => {
     e.preventDefault();
