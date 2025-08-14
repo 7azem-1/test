@@ -222,98 +222,33 @@
         <input type="date" id="date" placeholder="Booking date" required />
       </div>
       <div class="form-group">
-<select id="from" required>
-  <option value="">From</option>
-  <option value="1">1</option><option value="2">2</option>
-  <option value="3">3</option><option value="4">4</option>
-  <option value="5">5</option><option value="6">6</option>
-  <option value="7">7</option><option value="8">8</option>
-  <option value="9">9</option><option value="10">10</option>
-  <option value="11">11</option><option value="12">12</option>
-</select>
-
-<select id="to" required>
-  <option value="">To</option>
-  <option value="1">1</option><option value="2">2</option>
-  <option value="3">3</option><option value="4">4</option>
-  <option value="5">5</option><option value="6">6</option>
-  <option value="7">7</option><option value="8">8</option>
-  <option value="9">9</option><option value="10">10</option>
-  <option value="11">11</option><option value="12">12</option>
-</select>
-
-<select id="am_pm" required>
-  <option value="">AM/PM</option>
-  <option value="AM">AM</option>
-  <option value="PM">PM</option>
-</select>
-
-<style>
-  option.unavailable {
-    background-color: #f88;
-    color: white;
-    text-decoration: line-through;
-  }
-</style>
-
-<script>
-  // مثال حجوزات (بالساعات 24)
-  const bookings = [
-    { start: 14, end: 20 }, // 2 PM - 8 PM
-    { start: 9, end: 11 }   // 9 AM - 11 AM
-  ];
-
-  const fromSelect = document.getElementById("from");
-  const toSelect = document.getElementById("to");
-  const ampmSelect = document.getElementById("am_pm");
-
-  function to24(hour, period) {
-    hour = parseInt(hour);
-    if (period === "AM" && hour === 12) return 0; // 12 AM = 0
-    if (period === "PM" && hour !== 12) return hour + 12; // PM = +12
-    return hour;
-  }
-
-  function checkUnavailable() {
-    const fromVal = fromSelect.value;
-    const ampmVal = ampmSelect.value;
-
-    // مسح الحالات القديمة
-    [...toSelect.options].forEach(opt => {
-      opt.disabled = false;
-      opt.classList.remove("unavailable");
-    });
-
-    if (!fromVal || !ampmVal) return;
-
-    const fromHour24 = to24(fromVal, ampmVal);
-
-    [...toSelect.options].forEach(opt => {
-      const toVal = opt.value;
-      if (!toVal) return;
-
-      const toHour24 = to24(toVal, ampmVal);
-
-      if (toHour24 <= fromHour24) {
-        opt.disabled = true;
-        return;
-      }
-
-      const overlap = bookings.some(b => {
-        return (fromHour24 < b.end && toHour24 > b.start);
-      });
-
-      if (overlap) {
-        opt.disabled = true;
-        opt.classList.add("unavailable");
-      }
-    });
-  }
-
-  fromSelect.addEventListener("change", checkUnavailable);
-  toSelect.addEventListener("change", checkUnavailable);
-  ampmSelect.addEventListener("change", checkUnavailable);
-</script>
+        <label>Select Time</label>
+        <div class="time-row">
+          <select id="from" required>
+            <option value="">From</option>
+            <option value="1">1</option><option value="2">2</option>
+            <option value="3">3</option><option value="4">4</option>
+            <option value="5">5</option><option value="6">6</option>
+            <option value="7">7</option><option value="8">8</option>
+            <option value="9">9</option><option value="10">10</option>
+            <option value="11">11</option><option value="12">12</option>
+          </select>
+          <select id="to" required>
+            <option value="">To</option>
+            <option value="1">1</option><option value="2">2</option>
+            <option value="3">3</option><option value="4">4</option>
+            <option value="5">5</option><option value="6">6</option>
+            <option value="7">7</option><option value="8">8</option>
+            <option value="9">9</option><option value="10">10</option>
+            <option value="11">11</option><option value="12">12</option>
+          </select>
+          <select id="am_pm" required>
+            <option value="">AM/PM</option>
+            <option value="AM">AM</option>
+            <option value="PM">PM</option>
+          </select>
+        </div>
+      </div>
       <button type="submit">Book Now</button>
       <button type="button" onclick="window.location.href='index.html'" style="margin-top: 10px; background-color: #3498db">
         Back to Main Menu
@@ -492,6 +427,57 @@
   conflictBackdrop.addEventListener("click", (e) => {
     if (e.target === conflictBackdrop) hideConflictModal();
   });
+
+async function markBookedTimes(date, am_pm) {
+  const fromSelect = document.getElementById("from");
+  const toSelect = document.getElementById("to");
+
+  // رجع كل الأوبشنز لحالتهم الطبيعية
+  [...fromSelect.options, ...toSelect.options].forEach(opt => {
+    opt.disabled = false;
+    opt.style.color = "";
+    opt.style.textDecoration = "";
+  });
+
+  if (!date || !am_pm) return;
+
+  const bookingsRef = collection(db, "bookings");
+  const q = query(
+    bookingsRef,
+    where("date", "==", date),
+    where("am_pm", "==", am_pm),
+    where("expired", "==", false)
+  );
+
+  const querySnapshot = await getDocs(q);
+
+  querySnapshot.forEach(doc => {
+    const data = doc.data();
+    for (let hour = parseInt(data.from); hour < parseInt(data.to); hour++) {
+      [...fromSelect.options, ...toSelect.options].forEach(opt => {
+        if (parseInt(opt.value) === hour) {
+          opt.disabled = true;
+          opt.style.color = "red";
+          opt.style.textDecoration = "line-through";
+        }
+      });
+    }
+  });
+}
+
+// استدعاء لما يتغير التاريخ أو AM/PM
+document.getElementById("date").addEventListener("change", () => {
+  markBookedTimes(
+    document.getElementById("date").value,
+    document.getElementById("am_pm").value
+  );
+});
+document.getElementById("am_pm").addEventListener("change", () => {
+  markBookedTimes(
+    document.getElementById("date").value,
+    document.getElementById("am_pm").value
+  );
+});
 
   bookingForm.addEventListener("submit", async (e) => {
     e.preventDefault();
