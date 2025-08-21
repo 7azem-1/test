@@ -544,18 +544,23 @@ function disableHour(select, hour) {
         return;
       }
 
-      await addDoc(bookingsRef, {
-        name,
-        email,
-        phone,
-        date,
-        from,
-        to,
-        am_pm,
-        code,
-        expired: false,
-        createdAt: serverTimestamp(),
-      });
+const snapshot = await getDocs(bookingsRef);
+const orderNumber = snapshot.size + 1;
+const docId = "order" + orderNumber;
+
+await setDoc(doc(bookingsRef, docId), {
+  name,
+  email,
+  phone,
+  date,
+  from,
+  to,
+  am_pm,
+  code,
+  expired: false,
+  createdAt: serverTimestamp(),
+});
+
 
       showModal(code);
 
