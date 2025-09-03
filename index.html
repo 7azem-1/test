@@ -1,238 +1,92 @@
 <!DOCTYPE html>
 <html lang="eg">
 <head>
-<meta charset="UTF-8">
-<title>Mal3bk</title>
-<meta name="viewport" content="width=device-width, initial-scale=0.7">
-<link rel="stylesheet" href="padel.css">
-<script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword, signInWithEmailAndPassword, sendPasswordResetEmail, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+  <meta charset="UTF-8">
+  <title>Mal3bk</title>
+  <meta name="description" content="Free Web tutorials">
+  <meta name="keywords" content="padel , football">
+  <meta name="author" content="talal ahmed">
+  <meta name="viewport" content="width=device-width, initial-scale=0.7">
+  <link rel="stylesheet" href="padel.css">
+  <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
 
-const firebaseConfig = {
-  apiKey: "AIzaSyChXYUhXG3GliFPb5vp736Hhp7Msllxj68",
-  authDomain: "mlaab-city.firebaseapp.com",
-  projectId: "mlaab-city",
-  storageBucket: "mlaab-city.appspot.com",
-  messagingSenderId: "910383180422",
-  appId: "1:910383180422:web:3feb8fad61d2cab5917f07",
-  measurementId: "G-YQ0016JLVH"
-};
+  <style>
+    .cta {
+      display: inline-block;
+      background: #0d47a1; 
+      color: white;
+      text-decoration: none;
+      padding: 12px 30px;
+      font-size: 1.2rem;
+      font-weight: bold;
+      border-radius: 1;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+      transition: 0.3s ease;
+    }
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-
-window.openLogin = () => document.getElementById("loginModal").style.display = "block";
-window.closeLogin = () => document.getElementById("loginModal").style.display = "none";
-window.openRegister = () => document.getElementById("registerModal").style.display = "block";
-window.closeRegister = () => document.getElementById("registerModal").style.display = "none";
-
-function validateEmail(email) {
-  const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return re.test(email);
-}
-
-function validatePassword(password) {
-  if (password.length < 8) return "Password must be at least 8 characters long";
-  if (!/[A-Z]/.test(password)) return "Password must contain at least one uppercase letter";
-  if (!/[a-z]/.test(password)) return "Password must contain at least one lowercase letter";
-  if (!/[0-9]/.test(password)) return "Password must contain at least one number";
-  if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) return "Password must contain at least one special character";
-  return "";
-}
-
-window.registerUser = async () => {
-  const email = document.querySelector("#registerModal input[placeholder='Email']").value.trim();
-  const pass1 = document.getElementById("pass1").value.trim();
-  const pass2 = document.getElementById("pass2").value.trim();
-  const usernameInput = document.getElementById("usernameField").value.trim().replace(/^@/, "");
-  if (!email || !pass1 || !pass2 || !usernameInput) { alert("Please fill in all fields"); return; }
-  if (!validateEmail(email)) { alert("Invalid email format"); return; }
-  if (pass1 !== pass2) { alert("Passwords do not match"); return; }
-
-  const passwordError = validatePassword(pass1);
-  if (passwordError) { alert(passwordError); return; }
-
-  try {
-    await createUserWithEmailAndPassword(auth, email, pass1);
-    alert("Registration successful! You are now logged in.");
-    closeRegister();
-  } catch (err) { alert(err.message); }
-};
-
-window.loginUser = async () => {
-  const email = document.querySelector("#loginModal input[placeholder='Username / Email / Phone']").value.trim();
-  const password = document.querySelector("#loginModal input[placeholder='Password']").value.trim();
-  if (!email || !password) { alert("Please enter login details"); return; }
-  try {
-    await signInWithEmailAndPassword(auth, email, password);
-    alert("Login successful!");
-    closeLogin();
-  } catch (err) { alert("Invalid credentials"); }
-};
-
-window.logoutUser = async () => { await signOut(auth); updateNavbar(); };
-
-window.forgotPassword = () => {
-  const email = document.querySelector("#loginModal input[placeholder='Username / Email / Phone']").value.trim();
-  if (!email) { alert("Please enter your email"); return; }
-  sendPasswordResetEmail(auth, email)
-    .then(() => alert("Password reset email sent! (check your spam folder)"))
-    .catch(err => alert(err.message));
-};
-
-function updateNavbar() {
-  const accountMenu = document.querySelector(".account-menu");
-  const user = auth.currentUser;
-  if (user) {
-    accountMenu.innerHTML = `
-      <button id="profileBtn" class="account-icon">👤</button>
-      <div class="dropdown show">
-        <p>${user.email}</p>
-        <button onclick="logoutUser()">Log out</button>
-      </div>
-    `;
-  } else {
-    accountMenu.innerHTML = `
-      <button id="accountBtn" class="account-icon">👤</button>
-      <div class="dropdown" id="dropdownMenu">
-        <button onclick="openLogin()">Login</button>
-        <button onclick="openRegister()">Register</button>
-      </div>
-    `;
-    document.getElementById("accountBtn").onclick = () => document.getElementById("dropdownMenu").classList.toggle("show");
-  }
-}
-
-onAuthStateChanged(auth, () => updateNavbar());
-document.getElementById("registerBtn").onclick = registerUser;
-document.getElementById("loginBtn").onclick = loginUser;
-document.querySelector("#loginModal a").onclick = forgotPassword;
-
-window.onclick = function(e) {
-  if (e.target.classList.contains("modal")) { closeLogin(); closeRegister(); }
-};
-
-const usernameField = document.getElementById("usernameField");
-const usernameStatus = document.getElementById("usernameStatus");
-let usernameTimer;
-
-usernameField.addEventListener("input", () => {
-  let cleaned = usernameField.value.replace(/[^a-zA-Z0-9]/g, '');
-  if (/[^\x00-\x7F]/.test(usernameField.value)) {
-    usernameStatus.textContent = "❌ Username not available";
-  } else {
-    usernameStatus.textContent = "Checking...";
-    clearTimeout(usernameTimer);
-    usernameTimer = setTimeout(() => {
-      let users = JSON.parse(localStorage.getItem("users")) || [];
-      if (users.some(u => u.username === cleaned)) {
-        usernameStatus.textContent = "❌ Username not available";
-      } else {
-        usernameStatus.textContent = "✅ Username available";
-      }
-    }, 2000);
-  }
-  usernameField.value = "@" + cleaned;
-});
-
-const pass1 = document.getElementById("pass1");
-const passwordRules = document.getElementById("passwordRules");
-const ruleLength = document.getElementById("ruleLength");
-const ruleUpper = document.getElementById("ruleUpper");
-const ruleLower = document.getElementById("ruleLower");
-const ruleNumber = document.getElementById("ruleNumber");
-const ruleSpecial = document.getElementById("ruleSpecial");
-
-pass1.addEventListener("focus", () => passwordRules.style.display = "block");
-pass1.addEventListener("blur", () => passwordRules.style.display = "none");
-pass1.addEventListener("input", () => {
-  const val = pass1.value;
-  ruleLength.style.color = val.length >= 8 ? "green" : "#555";
-  ruleUpper.style.color = /[A-Z]/.test(val) ? "green" : "#555";
-  ruleLower.style.color = /[a-z]/.test(val) ? "green" : "#555";
-  ruleNumber.style.color = /[0-9]/.test(val) ? "green" : "#555";
-  ruleSpecial.style.color = /[!@#$%^&*(),.?":{}|<>]/.test(val) ? "green" : "#555";
-});
-</script>
-<style>
-#usernameField { padding-left: 25px; width: 100%; }
-#usernameField + div { text-align: center; margin-top: 2px; font-weight: bold; }
-#passwordRules { color: #555; font-size: 12px; margin-top: 2px; }
-</style>
+    .cta:hover {
+      background: #005f8a;
+      box-shadow: 0 6px 10px rgba(0,0,0,0.25);
+    }
+  </style>
 </head>
 <body>
-<div class="announcement-bar" id="announcement">
-  <div class="announcement-content">🎾Book your padel court in seconds, only here 🎾</div>
-</div>
-<header class="site-header">
-  <div class="logo-container">
-    <a href="index.html"><img src="img/mal3bk-logo.png" alt="Mal3bk" class="logo" /></a>
-  </div>
-  <nav class="navbar">
-    <ul>
-      <li><a href="index.html">Home</a></li>
-      <li><a href="index3.html">Matches</a></li>
-      <li><a href="">Tournaments (not available)</a></li>
-    </ul>
-  </nav>
-  <div class="account-menu">
-    <button id="accountBtn">👤</button>
-    <div class="dropdown" id="dropdownMenu">
-      <button onclick="openLogin()">Login</button>
-      <button onclick="openRegister()">Register</button>
+  <div class="announcement-bar" id="announcement">
+    <div class="announcement-content">
+      🎾Book your padel court in seconds, only here 🎾
     </div>
   </div>
-</header>
-<section class="Home" id="Home">
-  <div class="contents">
-    <a href="index3.html" class="btn">book now</a>
-  </div>
-</section>
 
-<div id="loginModal" class="modal">
-  <div class="modal-content">
-    <span class="close" onclick="closeLogin()">&times;</span>
-    <h2>Login</h2>
-    <input type="text" placeholder="Username / Email / Phone" required>
-    <input type="password" placeholder="Password" required>
-    <button id="loginBtn">Login</button>
-    <a href="#">Forgot your password?</a>
-  </div>
-</div>
+  <header class="site-header">
+    <div class="logo-container">
+      <a href="index.html"><img src="img/mal3bk-logo.png" alt="Mal3bk" class="logo" /></a>
+    </div>
+    <nav class="navbar">
+      <ul>
+        <li><a href="index.html">Home</a></li>
+        <li><a href="index3.html">Matches</a></li>
+        <li><a href="">Tournaments (locked)</a></li>
+      </ul>
+    </nav>
+  </header>
 
-<div id="registerModal" class="modal">
-  <div class="modal-content small">
-    <span class="close" onclick="closeRegister()">&times;</span>
-    <h2>Register</h2>
-    <input type="text" placeholder="First Name" required>
-    <input type="text" placeholder="Last Name" required>
-    <div style="position: relative; display: inline-block; width: 100%;">
-      <span style="position: absolute; left: 8px; top: 35%; transform: translateY(-50%); color: #555;">@</span>
-      <input type="text" id="usernameField" placeholder="username" required>
-    </div>
-    <div id="usernameStatus"></div>
-    <input type="email" placeholder="Email" required>
-    <input type="tel" placeholder="Phone (11 digits)" required>
-    <div class="password-group">
-      <input type="password" id="pass1" placeholder="Password" required>
-      <div id="passwordRules" style="display:none;">
-        <span id="ruleLength">• Minimum 8 characters</span><br>
-        <span id="ruleUpper">• At least 1 uppercase letter</span><br>
-        <span id="ruleLower">• At least 1 lowercase letter</span><br>
-        <span id="ruleNumber">• At least 1 number</span><br>
-        <span id="ruleSpecial">• At least 1 special character (!@#$%^&*())</span>
-      </div>
-      <input type="password" id="pass2" placeholder="Confirm Password" required>
-    </div>
-    <select required>
-      <option value="">Gender</option>
-      <option>Male</option>
-      <option>Female</option>
-      <option>Other</option>
-    </select>
-    <button id="registerBtn">Confirm</button>
+<main class="card hero">
+  <div class="hero-text">
+    <h1 data-aos="fade-down">Book your<br/>padel courts</h1>
+    <p data-aos="fade-down">Easily book padel courts in your area</p>
+
+    <a class="cta" href="index3.html" data-aos="fade-up">Book now</a>
   </div>
-</div>
+    <div class="hero-media" data-aos="fade-left">
+      <img src="img/WhatsApp Image 2025-09-02 at 14.08.52_dfd05a29.jpg" alt="Blue padel courts" />
+    </div>
+</main>
+<footer class="site-footer">
+  <div class="footer-content">
+    <div class="footer-about">
+      <h3>Mal3bk</h3>
+      <p>text</p>
+    </div>
+    <div class="footer-social">
+      <a href="#"><i class="fab fa-facebook-f"></i></a>
+      <a href="https://www.instagram.com/mal3bk.eg/#"><i class="fab fa-instagram"></i></a>
+      <a href="https://www.tiktok.com/@mal3bk"><i class="fab fa-tiktok"></i></a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2025 Mal3bk. All rights reserved.</p>
+  </div>
+</footer>
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<script>
+  AOS.init({
+    duration: 1000, 
+    once: false     
+  });
+</script>
+
 </body>
 </html>
