@@ -281,7 +281,7 @@
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
     import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-    import { getFirestore, setDoc, doc } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+    import { getFirestore, setDoc, doc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyChXYUhXG3GliFPb5vp736Hhp7Msllxj68",
@@ -317,37 +317,49 @@
       });
     });
 
-    const registerForm = document.getElementById("registerForm");
-    registerForm.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const name = document.getElementById("name").value.trim();
-      const username = document.getElementById("username").value.trim();
-      const phone = document.getElementById("phone").value.trim();
-      const email = document.getElementById("email").value.trim();
-      const dob = document.getElementById("dob").value;
-      const gender = document.getElementById("gender").value;
-      const password = document.getElementById("password").value;
-      const confirmPassword = document.getElementById("confirmPassword").value;
+const registerForm = document.getElementById("registerForm");
+registerForm.addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const name = document.getElementById("name").value.trim();
+  const username = document.getElementById("username").value.trim();
+  const phone = document.getElementById("phone").value.trim();
+  const email = document.getElementById("email").value.trim();
+  const dob = document.getElementById("dob").value;
+  const gender = document.getElementById("gender").value;
+  const password = document.getElementById("password").value;
+  const confirmPassword = document.getElementById("confirmPassword").value;
 
-      if (password !== confirmPassword) {
-        document.getElementById("errorMsg").innerText = "Passwords do not match.";
-        openModal("errorBackdrop");
-        return;
-      }
+  if (password !== confirmPassword) {
+    document.getElementById("errorMsg").innerText = "Passwords do not match.";
+    openModal("errorBackdrop");
+    return;
+  }
 
-      try {
-        const userCredential = await createUserWithEmailAndPassword(auth, email, password);
-        await setDoc(doc(db, "users", userCredential.user.uid), {
-          name, username, phone, email, dob, gender
-        });
-        document.getElementById("successMsg").innerText = "Account created successfully! Redirecting...";
-        openModal("successBackdrop");
-        setTimeout(() => window.location.href = "index11.html", 1500);
-      } catch (err) {
-        document.getElementById("errorMsg").innerText = err.message;
-        openModal("errorBackdrop");
-      }
+  try {
+    
+    const q = query(collection(db, "users"), where("username", "==", username));
+    const querySnapshot = await getDocs(q);
+
+    if (!querySnapshot.empty) {
+      document.getElementById("errorMsg").innerText = "Username already taken.";
+      openModal("errorBackdrop");
+      return;
+    }
+
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    await setDoc(doc(db, "users", userCredential.user.uid), {
+      name, username, phone, email, dob, gender
     });
+
+    document.getElementById("successMsg").innerText = "Account created successfully! Redirecting...";
+    openModal("successBackdrop");
+    setTimeout(() => window.location.href = "index11.html", 1500);
+
+  } catch (err) {
+    document.getElementById("errorMsg").innerText = err.message;
+    openModal("errorBackdrop");
+  }
+});
   </script>
 </body>
 </html>
