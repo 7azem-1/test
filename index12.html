@@ -279,53 +279,43 @@
   </div>
 
   <script type="module">
-import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-import { getAuth, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
-import { getFirestore, setDoc, doc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
+    import { getAuth, createUserWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+    import { getFirestore, setDoc, doc, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
-const firebaseConfig = {
-  apiKey: "AIzaSyChXYUhXG3GliFPb5vp736Hhp7Msllxj68",
-  authDomain: "mlaab-city.firebaseapp.com",
-  projectId: "mlaab-city",
-  storageBucket: "mlaab-city.appspot.com",
-  messagingSenderId: "910383180422",
-  appId: "1:910383180422:web:3feb8fad61d2cab5917f07",
-  measurementId: "G-YQ0016JLVH"
-};
+    const firebaseConfig = {
+      apiKey: "AIzaSyChXYUhXG3GliFPb5vp736Hhp7Msllxj68",
+      authDomain: "mlaab-city.firebaseapp.com",
+      projectId: "mlaab-city",
+      storageBucket: "mlaab-city.appspot.com",
+      messagingSenderId: "910383180422",
+      appId: "1:910383180422:web:3feb8fad61d2cab5917f07",
+      measurementId: "G-YQ0016JLVH",
+    };
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+    const db = getFirestore(app);
 
-function openModal(id) {
-  const backdrop = document.getElementById(id);
-  backdrop.style.display = "flex";
-  requestAnimationFrame(() => backdrop.querySelector(".modal").classList.add("show"));
-}
-
-window.closeModal = (id) => {
-  const backdrop = document.getElementById(id);
-  const modal = backdrop.querySelector(".modal");
-  modal.classList.remove("show");
-  setTimeout(() => backdrop.style.display = "none", 260);
-};
-
-function attachToggle(inputId, toggleId) {
-  const input = document.getElementById(inputId);
-  const toggle = document.getElementById(toggleId);
-  let shownOnce = false;
-  input.addEventListener("input", () => {
-    if (input.value.length > 0 && !shownOnce) {
-      toggle.style.display = "block";
-      shownOnce = true;
+    function openModal(id) {
+      const backdrop = document.getElementById(id);
+      backdrop.style.display = "flex";
+      requestAnimationFrame(() => backdrop.querySelector(".modal").classList.add("show"));
     }
-  });
-  toggle.addEventListener("click", () => {
-    input.type = input.type === "password" ? "text" : "password";
-  });
-}
-attachToggle("password", "togglePassword");
-attachToggle("confirmPassword", "toggleConfirmPassword");
+
+    window.closeModal = (id) => {
+      const backdrop = document.getElementById(id);
+      const modal = backdrop.querySelector(".modal");
+      modal.classList.remove("show");
+      setTimeout(() => backdrop.style.display = "none", 250);
+    };
+
+    document.querySelectorAll(".toggle-password").forEach(icon => {
+      icon.addEventListener("click", () => {
+        const target = document.getElementById(icon.dataset.target);
+        target.type = target.type === "password" ? "text" : "password";
+      });
+    });
 
 const registerForm = document.getElementById("registerForm");
 registerForm.addEventListener("submit", async (e) => {
@@ -345,53 +335,36 @@ registerForm.addEventListener("submit", async (e) => {
     return;
   }
 
-  if (password.length < 6) {
-    document.getElementById("errorMsg").innerText = "Password must be at least 6 characters.";
-    openModal("errorBackdrop");
-    return;
-  }
-
   try {
-    const usersRef = collection(db, "users");
-    const qUser = query(usersRef, where("username", "==", username));
-    const qPhone = query(usersRef, where("phone", "==", phone));
-    const qEmail = query(usersRef, where("email", "==", email));
+    
+    const q = query(collection(db, "users"), where("username", "==", username));
+    const querySnapshot = await getDocs(q);
 
-    const [snapUser, snapPhone, snapEmail] = await Promise.all([
-      getDocs(qUser),
-      getDocs(qPhone),
-      getDocs(qEmail)
-    ]);
-
-    if (!snapUser.empty) {
+    if (!querySnapshot.empty) {
       document.getElementById("errorMsg").innerText = "Username already taken.";
       openModal("errorBackdrop");
       return;
     }
-    if (!snapPhone.empty) {
-      document.getElementById("errorMsg").innerText = "Phone number already used.";
-      openModal("errorBackdrop");
-      return;
-    }
-    if (!snapEmail.empty) {
-      document.getElementById("errorMsg").innerText = "Email already registered.";
-      openModal("errorBackdrop");
-      return;
-    }
 
-    await createUserWithEmailAndPassword(auth, email, password);
-    await setDoc(doc(db, "users", username), {
-      name, username, phone, email, dob, gender, createdAt: new Date()
+    const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+    await setDoc(doc(db, "users", userCredential.user.uid), {
+      name, username, phone, email, dob, gender
     });
 
     document.getElementById("successMsg").innerText = "Account created successfully! Redirecting...";
     openModal("successBackdrop");
     setTimeout(() => window.location.href = "index11.html", 1500);
+
   } catch (err) {
     document.getElementById("errorMsg").innerText = err.message;
     openModal("errorBackdrop");
   }
 });
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        window.location.href = "index.html";
+      }
+    });
   </script>
 </body>
 </html>

@@ -246,7 +246,7 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-app.js";
-    import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, fetchSignInMethodsForEmail } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
+    import { getAuth, signInWithEmailAndPassword, sendPasswordResetEmail, fetchSignInMethodsForEmail, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-auth.js";
     import { getFirestore, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/12.0.0/firebase-firestore.js";
 
     const firebaseConfig = {
@@ -291,19 +291,14 @@
 
     document.getElementById("forgotPasswordLink").addEventListener("click", async () => {
       const loginInput = document.getElementById("loginInput").value.trim();
-      if (!loginInput || !loginInput.includes("@")) {
-        document.getElementById("errorMsg").innerText = "Please enter your email first.";
+      if (!loginInput) {
+        document.getElementById("errorMsg").innerText = "Please enter your email, phone or username first.";
         openModal("errorBackdrop");
         return;
       }
       try {
-        const methods = await fetchSignInMethodsForEmail(auth, loginInput);
-        if (methods.length === 0) {
-          document.getElementById("errorMsg").innerText = "No account found with this email.";
-          openModal("errorBackdrop");
-          return;
-        }
-        await sendPasswordResetEmail(auth, loginInput);
+        const email = await resolveToEmail(loginInput); 
+        await sendPasswordResetEmail(auth, email);
         document.getElementById("successMsg").innerText = "Check your inbox or spam folder for reset link.";
         openModal("successBackdrop");
       } catch (err) {
@@ -326,6 +321,12 @@
       } catch (error) {
         document.getElementById("errorMsg").innerText = error.message;
         openModal("errorBackdrop");
+      }
+    });
+
+    onAuthStateChanged(auth, (user) => {
+      if (user) {
+        window.location.href = "index.html";
       }
     });
   </script>
