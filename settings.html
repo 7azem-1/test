@@ -225,6 +225,24 @@
     color: var(--primary);
   }
 
+  .table-wrapper {
+  max-height: 250px; 
+  overflow-y: auto;
+  border-radius: 12px;
+  }
+
+  .table-wrapper table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+
+  .table-wrapper thead th {
+    position: sticky;
+    top: 0;
+    background: var(--primary);
+    color: #fff;
+    z-index: 2;
+  }
   </style>
 </head>
 <body>
@@ -270,18 +288,22 @@
       <button class="filter-btn active" onclick="setFilter('all', this)">All</button>
       <button class="filter-btn" onclick="setFilter('active', this)">Active</button>
       <button class="filter-btn" onclick="setFilter('expired', this)">Expired</button>
-      <table>
-        <thead>
-          <tr>
-            <th>Match</th>
-            <th>Date</th>
-            <th>Time</th>
-            <th>Status</th>
-          </tr>
-        </thead>
-        <tbody id="bookingsList"></tbody>
-      </table>
+
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th>Match</th>
+              <th>Date</th>
+              <th>Time</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="bookingsList"></tbody>
+        </table>
+      </div>
     </div>
+
 
     <button class="logout-btn" onclick="logout()">🚪 Log out</button>
   </div>
